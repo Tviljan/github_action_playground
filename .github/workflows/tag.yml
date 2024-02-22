@@ -27,10 +27,10 @@ jobs:
           echo "New AssemblyVersion is ${{ github.event.inputs.version }}"
           if [ "$current_version" != "${{ github.event.inputs.version }}" ]; then
             echo "Versions are different"
-            echo "{version_changed}={true}" >> $GITHUB_STATE
+            echo "version_changed=true" >> $GITHUB_STATE
           else
             echo "Versions are the same"
-            echo "{version_changed}={false}" >> $GITHUB_STATE
+            echo "version_changed=false" >> $GITHUB_STATE
           fi
         shell: bash
 
