@@ -1,5 +1,4 @@
-name: Update AssemblyVersion and FileVersion
-
+name: Update AssemblyVersion and FileVersion (pwsh)
 on:
   workflow_dispatch:
     inputs:
@@ -47,6 +46,9 @@ jobs:
         shell: pwsh
         
 
-      - name: Commit changes
+      - name: Commit changes (not really)
         run: |
-          echo "New AssemblyVersion is ${{ github.event.inputs.version }}"
+          $newAssemblyVersion = Select-String -Path "*.csproj" -Pattern "<AssemblyVersion>(.*)</AssemblyVersion>" | ForEach-Object { $_.Matches.Groups[1].Value }
+          $newFileVersion = Select-String -Path "*.csproj" -Pattern "<FileVersion>(.*)</FileVersion>" | ForEach-Object { $_.Matches.Groups[1].Value }
+          Write-Host "New AssemblyVersion is $newAssemblyVersion"
+          Write-Host "New FileVersion is $newFileVersion"

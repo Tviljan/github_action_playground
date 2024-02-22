@@ -1,4 +1,4 @@
-name: Update AssemblyVersion and FileVersion
+name: Update AssemblyVersion and FileVersion (bash)
 
 on:
   workflow_dispatch:
@@ -47,6 +47,9 @@ jobs:
           sed -i "s|<FileVersion>$FILEVERSION</FileVersion>|<FileVersion>$NEWFILEVERSION</FileVersion>|g" *.csproj
         shell: bash
 
-      - name: Commit changes
+      - name: Commit changes (not really)
         run: |
-          echo "New AssemblyVersion is ${{ github.event.inputs.version }}"
+          new_assembly_version=$(grep -oPm1 "(?<=<AssemblyVersion>)[^<]+" *.csproj)
+          new_file_version=$(grep -oPm1 "(?<=<FileVersion>)[^<]+" *.csproj)
+          echo "New AssemblyVersion is new_assembly_version"
+          echo "New FileVersion is new_file_version"
