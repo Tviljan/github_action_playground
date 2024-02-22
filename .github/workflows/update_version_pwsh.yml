@@ -1,0 +1,52 @@
+name: Update AssemblyVersion and FileVersion
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New AssemblyVersion'
+        required: true
+        default: '1.0.0.0'
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src/App
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check current AssemblyVersion
+        id: current_version
+        run: |
+            $currentVersion = Select-String -Path "*.csproj" -Pattern "<AssemblyVersion>(.*)</AssemblyVersion>" | ForEach-Object { $_.Matches.Groups[1].Value }
+            Write-Host "Current AssemblyVersion is $currentVersion"
+            Write-Host "New AssemblyVersion is ${{ github.event.inputs.version }}"
+            if ($currentVersion -ne "${{ github.event.inputs.version }}") {
+                Write-Host "Versions are different"
+                echo "version_changed=true" | Out-File -FilePath $Env:GITHUB_OUTPUT -Append
+            } else {
+                Write-Host "Versions are the same"
+                echo "version_changed=false" | Out-File -FilePath $Env:GITHUB_OUTPUT -Append
+            }
+        shell: pwsh
+        
+      - name: Update AssemblyVersion if needed
+        if: steps.current_version.outputs.version_changed == 'true'
+        run: |
+            (Get-Content -path "*.csproj") -replace '<AssemblyVersion>.*</AssemblyVersion>', "<AssemblyVersion>${{ github.event.inputs.version }}</AssemblyVersion>" | Set-Content -Path "*.csproj"
+        shell: pwsh
+
+      - name: Increment FileVersion
+        run: |
+            $fileVersion = Select-String -Path "*.csproj" -Pattern "<FileVersion>(\d+)</FileVersion>" | ForEach-Object { $_.Matches.Groups[1].Value }
+            $newFileVersion = [int]$fileVersion + 1
+            (Get-Content -path "*.csproj") -replace "<FileVersion>$fileVersion</FileVersion>", "<FileVersion>$newFileVersion</FileVersion>" | Set-Content -Path "*.csproj"
+        shell: pwsh
+        
+
+      - name: Commit changes
+        run: |
+          echo "New AssemblyVersion is ${{ github.event.inputs.version }}"
