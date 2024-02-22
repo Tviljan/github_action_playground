@@ -27,15 +27,15 @@ jobs:
           echo "New AssemblyVersion is ${{ github.event.inputs.version }}"
           if [ "$current_version" != "${{ github.event.inputs.version }}" ]; then
             echo "Versions are different"
-            echo "version_changed=true" >> $GITHUB_STATE
+            echo "version_changed=true" >> $GITHUB_OUTPUT
           else
             echo "Versions are the same"
-            echo "version_changed=false" >> $GITHUB_STATE
+            echo "version_changed=false" >> $GITHUB_OUTPUT
           fi
         shell: bash
 
       - name: Update AssemblyVersion if needed
-        if: env.version_changed == 'true'
+        if: steps.current_version.outputs.version_changed == 'true'
         run: |
           sed -i "s|<AssemblyVersion>.*</AssemblyVersion>|<AssemblyVersion>${{ github.event.inputs.version }}</AssemblyVersion>|g" *.csproj
         shell: bash
