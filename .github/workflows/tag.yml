@@ -22,7 +22,7 @@ jobs:
         id: current_version
         run: |
           echo "$PWD"
-          current_version=$(grep -oPm1 "(?<=<AssemblyVersion>)[^<]+" **/*.csproj)
+          current_version=$(grep -oPm1 "(?<=<AssemblyVersion>)[^<]+" *.csproj)
           echo "Current AssemblyVersion is $current_version"
           echo "New AssemblyVersion is ${{ github.event.inputs.version }}"
           if [ "$current_version" != "${{ github.event.inputs.version }}" ]; then
@@ -37,14 +37,14 @@ jobs:
       - name: Update AssemblyVersion if needed
         if: env.UPDATE_ASSEMBLY_VERSION == 'true'
         run: |
-          sed -i "s|<AssemblyVersion>.*</AssemblyVersion>|<AssemblyVersion>${{ github.event.inputs.version }}</AssemblyVersion>|g" **/*.csproj
+          sed -i "s|<AssemblyVersion>.*</AssemblyVersion>|<AssemblyVersion>${{ github.event.inputs.version }}</AssemblyVersion>|g" *.csproj
         shell: bash
 
       - name: Increment FileVersion
         run: |
           FILEVERSION=$(grep -oPm1 "(?<=<FileVersion>)[^<]+" **/*.csproj)
           NEWFILEVERSION=$((FILEVERSION+1))
-          sed -i "s|<FileVersion>$FILEVERSION</FileVersion>|<FileVersion>$NEWFILEVERSION</FileVersion>|g" **/*.csproj
+          sed -i "s|<FileVersion>$FILEVERSION</FileVersion>|<FileVersion>$NEWFILEVERSION</FileVersion>|g" *.csproj
         shell: bash
 
       - name: Commit changes
