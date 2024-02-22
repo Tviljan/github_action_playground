@@ -42,7 +42,7 @@ jobs:
 
       - name: Increment FileVersion
         run: |
-          FILEVERSION=$(grep -oPm1 "(?<=<FileVersion>)[^<]+" **/*.csproj)
+          FILEVERSION=$(grep -oPm1 "(?<=<FileVersion>)[^<]+" *.csproj)
           NEWFILEVERSION=$((FILEVERSION+1))
           sed -i "s|<FileVersion>$FILEVERSION</FileVersion>|<FileVersion>$NEWFILEVERSION</FileVersion>|g" *.csproj
         shell: bash
