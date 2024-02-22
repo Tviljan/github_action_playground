@@ -21,6 +21,7 @@ jobs:
       - name: Check current AssemblyVersion
         id: current_version
         run: |
+          echo "$PWD"
           current_version=$(grep -oPm1 "(?<=<AssemblyVersion>)[^<]+" **/*.csproj)
           echo "Current AssemblyVersion is $current_version"
           echo "New AssemblyVersion is ${{ github.event.inputs.version }}"
