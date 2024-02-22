@@ -1,0 +1,48 @@
+name: Update AssemblyVersion and FileVersion
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New AssemblyVersion'
+        required: true
+        default: '1.0.0.0'
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check current AssemblyVersion
+        id: current_version
+        run: |
+          current_version=$(grep -oPm1 "(?<=<AssemblyVersion>)[^<]+" **/*.csproj)
+          echo "Current AssemblyVersion is $current_version"
+          echo "New AssemblyVersion is ${{ github.event.inputs.version }}"
+          if [ "$current_version" != "${{ github.event.inputs.version }}" ]; then
+            echo "Versions are different"
+            echo "::set-output name=version_changed::true"
+          else
+            echo "Versions are the same"
+            echo "::set-output name=version_changed::false"
+          fi
+        shell: bash
+
+      - name: Update AssemblyVersion if needed
+        if: env.UPDATE_ASSEMBLY_VERSION == 'true'
+        run: |
+          sed -i "s|<AssemblyVersion>.*</AssemblyVersion>|<AssemblyVersion>${{ github.event.inputs.version }}</AssemblyVersion>|g" **/*.csproj
+        shell: bash
+
+      - name: Increment FileVersion
+        run: |
+          FILEVERSION=$(grep -oPm1 "(?<=<FileVersion>)[^<]+" **/*.csproj)
+          NEWFILEVERSION=$((FILEVERSION+1))
+          sed -i "s|<FileVersion>$FILEVERSION</FileVersion>|<FileVersion>$NEWFILEVERSION</FileVersion>|g" **/*.csproj
+        shell: bash
+
+      - name: Commit changes
+        run: |
+          echo "New AssemblyVersion is ${{ github.event.inputs.version }}"
