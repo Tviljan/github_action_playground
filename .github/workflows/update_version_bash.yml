@@ -52,4 +52,5 @@ jobs:
           new_assembly_version=$(grep -oPm1 "(?<=<AssemblyVersion>)[^<]+" *.csproj)
           new_file_version=$(grep -oPm1 "(?<=<FileVersion>)[^<]+" *.csproj)
           echo "New AssemblyVersion is new_assembly_version"
-          echo "New FileVersion is new_file_version"
+          echo "New FileVersion is new_file_version"        
+        shell: bash
